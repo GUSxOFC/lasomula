@@ -1,14 +1,13 @@
 {
-  "name": "telegram-saver-app",
+  "name": "tg-login",
   "version": "1.0.0",
-  "description": "Simple Telegram Account Saver",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "gramjs": "^3.3.0",
-    "cors": "^2.8.5"
+    "telegram": "^2.21.2"
   }
 }
