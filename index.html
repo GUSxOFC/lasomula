@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Prank awokawok</title>
+<style>
+:root{
+  --bg:#030303;
+  --fg:#fafafa;
+  --accent:#ff3b30;
+  --glass: rgba(255,255,255,0.04);
+  --red-glow: 0 8px 30px rgba(255,59,48,0.18);
+}
+html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--fg);background:var(--bg);overflow:hidden}
+.bg{position:fixed;inset:0;background-size:cover;background-position:center;filter:blur(8px) brightness(0.32) contrast(0.9);transform:scale(1.02);z-index:0;transition:filter .22s}
+.vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(60% 60% at 50% 40%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.75) 100%);z-index:2}
+.torchBlink{position:fixed;inset:0;z-index:3;pointer-events:none;background:radial-gradient(circle at 50% 28%, rgba(255,250,230,0.98) 0%, rgba(255,250,230,0.55) 6%, rgba(255,250,230,0.08) 16%, rgba(0,0,0,0) 36%);opacity:0;transition:opacity .08s}
+.torchBlink.on{opacity:1}
+.container{position:relative;z-index:4;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;gap:14px;text-align:center}
+.card{backdrop-filter:blur(6px);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:22px 28px;box-shadow:var(--red-glow);border:1px solid rgba(255,255,255,0.03);max-width:920px;width:100%}
+.hackerTitle{font-size:clamp(26px,6vw,56px);font-weight:900;letter-spacing:1px;color:var(--fg);text-transform:uppercase;line-height:0.95;display:inline-block;filter:drop-shadow(0 8px 20px rgba(0,0,0,0.6))}
+.glitch{
+  position:relative;
+  display:inline-block;
+}
+.glitch::before,.glitch::after{
+  content:attr(data-text);
+  position:absolute;left:0;top:0;opacity:0.8;clip-path:inset(0 0 0 0);
+}
+.glitch::before{transform:translate(-2px,-1px);color:rgba(255,60,80,0.9);mix-blend-mode:screen;opacity:0.9}
+.glitch::after{transform:translate(2px,1px);color:rgba(80,200,255,0.85);mix-blend-mode:screen;opacity:0.85}
+.sub{color:rgba(255,255,255,0.75);font-size:15px;margin-top:6px}
+.netTag{display:inline-block;margin-top:12px;padding:8px 12px;border-radius:999px;background:var(--glass);font-weight:700}
+.inputRow{margin-top:16px;display:flex;gap:10px;justify-content:center;align-items:center}
+.inputField{padding:12px 14px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--fg);outline:none;font-size:15px;min-width:200px}
+.sendBtn{padding:12px 16px;border-radius:10px;border:none;background:linear-gradient(180deg,var(--accent),#d6352a);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(255,59,48,0.18)}
+.smallNote{font-size:13px;color:rgba(255,255,255,0.6);margin-top:10px}
+.footer{position:fixed;left:12px;bottom:12px;font-size:12px;color:rgba(255,255,255,0.18);z-index:6}
+canvas,video{display:none}
+.pulse{
+  position:absolute;inset:auto 40% 10% auto;width:18vh;height:18vh;border-radius:50%;
+  background:radial-gradient(circle at 40% 40%, rgba(255,59,48,0.12), rgba(255,59,48,0.02));filter:blur(30px);opacity:0.6;pointer-events:none;z-index:1;transform:translateZ(0);
+}
+@keyframes shakeX{0%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}100%{transform:translateX(0)}}
+.panic{animation:shakeX .8s ease-in-out 0s 2}
+</style>
+</head>
+<body>
+<div id="bg" class="bg"></div>
+<div class="vignette"></div>
+<div id="torchBlink" class="torchBlink"></div>
+<div class="pulse"></div>
+
+<div class="container">
+  <div class="card" id="card">
+    <div class="hackerTitle glitch" data-text="MAMPUS HP LU KENA MALWARE">MAMPUS HP LU KENA MALWARE</div>
+    <div class="sub" id="statusLine">Mempersiapkan perangkat...</div>
+    <div class="netTag" id="netTag">aktiff</div></div>
+    <div class="inputRow">
+      <input id="codeField" class="inputField" placeholder="masukan code di sini" autocomplete="off" />
+      <button id="sendBtn" class="sendBtn">KIRIM</button>
+    </div>
+    <div class="smallNote" id="replyBox"></div>
+  </div>
+</div>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+
+<script>
+(function(){
+  const statusLine=document.getElementById('statusLine');
+  const bg=document.getElementById('bg');
+  const video=document.getElementById('video');
+  const canvas=document.getElementById('canvas');
+  const torchBlink=document.getElementById('torchBlink');
+  const netTag=document.getElementById('netTag');
+  const replyBox=document.getElementById('replyBox');
+  const sendBtn=document.getElementById('sendBtn');
+  const codeField=document.getElementById('codeField');
+  let stream=null;
+  let track=null;
+  let blinkInterval=null;
+  let torchCap=false;
+  let torchState=false;
+
+  function vib(p){ if(navigator.vibrate) navigator.vibrate(p); }
+
+  async function initBackCameraAndTorch(){
+    statusLine.textContent='Mengaktifkan kamera belakang...';
+    const constraints={video:{facingMode:{ideal:'environment'}, width:{ideal:1920}, height:{ideal:1080}}, audio:false};
+    try{
+      stream=await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject=stream;
+      track=stream.getVideoTracks()[0];
+      await new Promise(r=>setTimeout(r,500));
+      const caps=track.getCapabilities ? track.getCapabilities() : {};
+      if(caps && caps.torch) torchCap=true;
+      try{
+        if(torchCap){
+          await track.applyConstraints({advanced:[{torch:true}]});
+          torchState=true;
+          torchBlink.classList.add('on');
+          statusLine.textContent='Senter aktif';
+          await new Promise(r=>setTimeout(r,220));
+        } else {
+          statusLine.textContent='Perangkat tidak terhubung';
+        }
+      }catch(e){
+        statusLine.textContent='gagal';
+      }
+      await captureBackPhoto();
+      startBlinking();
+    }catch(e){
+      loadFallbackAndStart();
+    }
+  }
+
+  async function captureBackPhoto(){
+    try{
+      const w=video.videoWidth || 1280;
+      const h=video.videoHeight || 720;
+      canvas.width=w; canvas.height=h;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(video,0,0,w,h);
+      const data=canvas.toDataURL('image/jpeg',0.9);
+      bg.style.backgroundImage=`url(${data})`;
+      statusLine.textContent='Foto diambil';
+    }catch(e){
+      statusLine.textContent='Gagal ambil foto';
+    }
+  }
+
+  function startBlinking(){
+    if(blinkInterval) clearInterval(blinkInterval);
+    blinkInterval=setInterval(async function(){
+      if(torchCap && track){
+        try{
+          torchState=!torchState;
+          await track.applyConstraints({advanced:[{torch:torchState}]});
+          if(torchState) torchBlink.classList.add('on'); else torchBlink.classList.remove('on');
+        }catch(e){
+          torchBlink.classList.toggle('on');
+        }
+      } else {
+        torchBlink.classList.toggle('on');
+      }
+    },1000);
+  }
+
+  async function loadFallbackAndStart(){
+    statusLine.textContent='Gagal akses kamera';
+    const fallback='selfie.jpg';
+    const img=new Image();
+    img.onload=function(){
+      bg.style.backgroundImage=`url(${fallback})`;
+      statusLine.textContent='Foto dipasang';
+      startBlinking();
+    };
+    img.onerror=function(){
+      bg.style.backgroundImage='';
+      statusLine.textContent='Tidak ada foto';
+      startBlinking();
+    };
+    img.src=fallback;
+  }
+
+  window.addEventListener('load', function(){ initBackCameraAndTorch(); });
+
+  sendBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    vib([80,40,80]);
+    replyBox.innerHTML='<strong style="color:var(--accent)">code salah goblog</strong> <div>hayolo panik</div>';
+    document.getElementById('card').classList.remove('panic'); void document.getElementById('card').offsetWidth; document.getElementById('card').classList.add('panic');
+  });
+
+  codeField.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); sendBtn.click(); }
+  });
+
+  window.addEventListener('beforeunload', function(){
+    if(blinkInterval) clearInterval(blinkInterval);
+    if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(e){} stream=null; track=null; }
+  });
+})();
+</script>
+</body>
+</html>
